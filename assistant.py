@@ -11,6 +11,7 @@ import requests
 import json
 import os
 import random
+import urllib.parse
 
 # ==========================
 # CONFIGURATION
@@ -100,11 +101,25 @@ def search_wikipedia(query):
     except:
         return "Sorry, I couldn't find anything on Wikipedia."
 
+def search_wikipedia_page(query):
+    # Extract query by removing keywords
+    query = query.replace("search", "").replace("for", "").replace("on wikipedia", "").strip()
+    # URL-encode the query for Wikipedia
+    encoded_query = urllib.parse.quote(query.replace(" ", "_"))
+    url = f"https://en.wikipedia.org/wiki/{encoded_query}"
+    webbrowser.open(url)
+    return f"Searching Wikipedia for {query}"
+
 def open_website(url):
     webbrowser.open(url)
 
 def play_youtube(video):
     pywhatkit.playonyt(video)
+def search_youtube(query):
+    query = query.replace("search", "").replace("on youtube", "").strip()
+    url = f"https://www.youtube.com/results?search_query={query.replace(' ', '+')}"
+    webbrowser.open(url)
+    return f"Searching YouTube for {query}"
 
 def play_local_music(file_path):
     os.startfile(file_path)
@@ -172,6 +187,11 @@ def open_linkedin():
 def open_google_maps():
     open_website("https://maps.google.com")
     return "Opening Google Maps"
+def search_google(query):
+    query = query.replace("search", "").replace("on google", "").strip()
+    url = f"https://www.google.com/search?q={query.replace(' ', '+')}"
+    webbrowser.open(url)
+    return f"Searching Google for {query}"
 def open_mx_player():
     open_website("https://www.mxplayer.in")
     return "Opening MX Player"
@@ -244,13 +264,19 @@ class VoiceAssistantApp:
                 response = tell_date()
             elif "wikipedia" in query:
                 response = search_wikipedia(query)
+            elif "search" in query and "wikipedia" in query:
+                response = search_wikipedia_page(query)
             elif "youtube" in query:
                 video = query.replace("play", "").replace("on youtube", "")
                 response = f"Playing {video} on YouTube"
                 play_youtube(video)
+            elif "search" in query and "youtube" in query:
+                response = search_youtube(query)
             elif "open google" in query:
                 response = "Opening Google"
                 open_website("https://www.google.com")
+            elif "search" in query and "google" in query:
+                response = search_google(query)
             elif "open whatsapp" in query:
                 response = "Opening WhatsApp"
                 open_website("https://web.whatsapp.com")
